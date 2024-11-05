@@ -1,0 +1,5 @@
+.pio
+.vscode
+gt.sh
+vcon_upload.ini
+stm32pio.ini
