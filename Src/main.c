@@ -39,46 +39,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-
-ResetCause
-reset_cause_get(void)
-{
-    ResetCause reset_cause;
-
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST))
-    {
-        reset_cause = RC_LOW_POWER_RESET;
-    }
-    else if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST))
-    {
-        reset_cause = RC_WINDOW_WATCHDOG_RESET;
-    }
-    else if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST))
-    {
-        reset_cause = RC_INDEPENDENT_WATCHDOG_RESET;
-    }
-    else if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST))
-    {
-        reset_cause = RC_SOFTWARE_RESET; 
-    }
-    else if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST))
-    {
-        reset_cause = RC_POWER_ON_POWER_DOWN_RESET;
-    }
-    else if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST))
-    {
-        reset_cause = RC_EXTERNAL_RESET_PIN_RESET;
-    }
-    else
-    {
-        reset_cause = RC_UNKNOWN;
-    }
-
-    __HAL_RCC_CLEAR_RESET_FLAGS();
-
-    return reset_cause; 
-}
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -110,34 +70,6 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void
-HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	// OCPP
-	if (huart->Instance == controller.ocpp.uart->Instance)
-	{
-    controller_uart_usart_callback(&controller.ocpp.ctrl_uart);
-  }
-	// RAPI
-	if (huart->Instance == controller.rapi.ctrl_uart.huart->Instance)
-  {
-    controller_uart_usart_callback(&controller.rapi.ctrl_uart);
-  }
-
-}
-
-void
-HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	if (htim->Instance == controller.ocpp.tim->Instance)
-	{
-    controller_uart_timer_callback(&controller.ocpp.ctrl_uart);
-	}
-	else if (htim->Instance == controller.rapi.tim->Instance)
-	{
-		controller_uart_timer_callback(&controller.rapi.ctrl_uart);
-	}
-}
 
 #define DEBUG
 /* USER CODE END 0 */
@@ -165,7 +97,6 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 
-  ResetCause rc = reset_cause_get();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -182,7 +113,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 #ifdef DEBUG
-  uprintf(&OCPP_UART, 100, 20, "DEBUG START\r");
+  uprintf(&OCPP_UART, 100, 20, "DEBUG START\n");
 	// uprintf(&OCPP_UART, 100, 20, "%u %u\n", rc, sizeof(Controller_Result));
 #endif
 
@@ -190,24 +121,37 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
 
-  // Controller_Result res = controller_initialize
-  // (
-  // 	&controller,
-  // 	&OCPP_UART, &RAPI_UART,
-  // 	&htim6, &htim7,
-  // 	&hrtc, &hi2c2,
-	//   GPIOB, GPIO_PIN_1,
-  //   rc
-  // );
-  // if (res.type != CTRL_OK)
-  // {
-  //   controller.memory.fatal_err = res;
-  //   _controller_memory_store(&(controller.memory));
-	//   Error_Handler_with_err("FAILED ON INITIALIZATION");
-  // }
+  uprintf(&OCPP_UART, 100, 20, "HUY\n");
+/*
+ * +-------------------+
+ * |Wed        06.11.24|
+ * |     03:25:48      |
+ * |22*        SNOW 12*|
+ * |ACOS FLOAT 12.11.24|
+ * +-------------------+
+ *
+ */
 
-  // controller.ocpp.it_error = (Controller_Protocol_Result)HAL_UART_Receive_IT(&OCPP_UART, (uint8_t *)&(controller.ocpp.accumulative_buffer[0]), 1);
-  // controller.rapi.it_error = (Controller_Protocol_Result)HAL_UART_Receive_IT(&RAPI_UART, (uint8_t *)&(controller.rapi.accumulative_buffer[0]), 1); // delete
+
+
+
+  LCD_I2C lcd = {0};
+    HAL_StatusTypeDef init = lcd_i2c_init(&(lcd), &hi2c2, 0x4E, LCD_20x4, 10);
+    lcd_i2c_pos_printf(&(lcd), 0, 0, "WED");
+    lcd_i2c_pos_printf(&(lcd), 12,0, "06.11.24");
+    lcd_i2c_pos_printf(&(lcd), 6,1, "03:25:48");
+    lcd_i2c_pos_printf(&(lcd), 0,2, "22*");
+    lcd_i2c_pos_printf(&(lcd), 11,2, "SNOW -01*");
+    lcd_i2c_pos_printf(&(lcd), 0,3, "ACOS FLOAT 12.11.24");
+    
+
+    controller_initialize
+    (
+        &controller,
+        &OCPP_UART, 
+        &htim6,
+        &hrtc, &hi2c2
+    );
 
   /* USER CODE END 2 */
 
@@ -217,20 +161,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	HAL_IWDG_Refresh(&hiwdg);
-	// res = controller_update(&controller);
-	// if (res.type != CTRL_OK)
-	// {
-  //   controller.memory.fatal_err = res;
-  //   _controller_memory_store(&(controller.memory));
-	// 	uprintf(DBUG_UART, 1000, 100, "ERR: %u\n", res.type);
-	// 	uprintf(DBUG_UART, 1000, 100, "PTCL ERR: %u\n", res.errors.ocpp_err);
-	// 	uprintf(DBUG_UART, 1000, 100, "TSET ERR: %u\n", res.errors.tset_err);
-  //   // TODO add DataTransfer when these errors occur
-	// 	Error_Handler_with_err("FAILED IN LOOP");
-	// }
-	// res.type = 0;
-	// res.errors.ocpp_err = 0;
-		// YOU SHOULD HANDLE IT!!
+	controller_update(&controller);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -289,7 +220,7 @@ void
 Error_Handler_with_err(const char * err)
 {
   #ifndef NODEBUG
-  uprintf(DBUG_UART, 1000, 256, "ERROR: %s\r", err);
+  uprintf(&OCPP_UART, 1000, 256, "ERROR: %s\n", err);
   #endif
   Error_Handler();
 }

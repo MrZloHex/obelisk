@@ -8,52 +8,29 @@
 #ifndef __CONTROLLER_H__
 #define __CONTROLLER_H__
 
-#include "controller_taskset.h"
-#include "controller_ocpp.h"
-#include "controller_rapi.h"
-#include "controller_memory.h"
-#include "controller_uart.h"
 #include "lcd_i2c.h"
-
-#define MAX_MSG_REPS 5
-
-#define MAX_TASKSET_CAPACITY 16
-
-#define P_OCPP(controller) &(controller->ocpp) 
-#define P_RAPI(controller) &(controller->rapi) 
+#include "stdint.h"
 
 
 typedef struct Controller_S
 {
-	Controller_TaskSet task_set;
-	Controller_OCPP ocpp;
-	Controller_RAPI rapi;
+	UART_HandleTypeDef *vcon;
+	TIM_HandleTypeDef *vcon_tim;
+	RTC_HandleTypeDef *rtc;
 	LCD_I2C 	lcd;
-	Controller_Memory memory;
-
-	uint8_t p_s;
-	uint8_t e_s;
-
-	uint32_t seq_timer_var;
-	bool debug;
 } Controller;
 
-Controller_Result
+void
 controller_initialize
 (
 	Controller *controller,
-	UART_HandleTypeDef *ocpp_uart,
-	UART_HandleTypeDef *rapi_uart,
-	TIM_HandleTypeDef *ocpp_tim,
-	TIM_HandleTypeDef *rapi_tim,
+	UART_HandleTypeDef *vcon,
+	TIM_HandleTypeDef *vcon_tim,
 	RTC_HandleTypeDef *rtc,
-	I2C_HandleTypeDef *i2c,
-	GPIO_TypeDef   	  *wp_gpio,
-	uint16_t 	   wp_pin,
-	ResetCause rc
+	I2C_HandleTypeDef *i2c
 );
 
-Controller_Result
+void
 controller_update(Controller *controller);
 
 #endif /* __CONTROLLER_H__ */
