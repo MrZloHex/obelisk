@@ -11,13 +11,15 @@
 #include "lcd_i2c.h"
 #include "stdint.h"
 
+#include "controller_datetime.h"
+#include "controller_lcd.h"
 
 typedef struct Controller_S
 {
 	UART_HandleTypeDef *vcon;
 	TIM_HandleTypeDef *vcon_tim;
-	RTC_HandleTypeDef *rtc;
-	LCD_I2C 	lcd;
+	Ctrl_LCD  lcd;
+    Ctrl_DateTime datetime;
 } Controller;
 
 void

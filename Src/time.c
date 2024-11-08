@@ -73,7 +73,33 @@ adjust_rtc_time
 }
 
 void
-get_rtc_time
+get_rtc_date(RTC_DateTypeDef date, char str[9])
+{
+	mjson_snprintf
+	(
+		str, 9,
+		"%M:%M:%M",
+		zero_2_int, date.Date,
+		zero_2_int, date.Month,
+		date.Year
+	);
+}
+
+void
+get_rtc_time(RTC_TimeTypeDef time, char str[9])
+{
+	mjson_snprintf
+	(
+		str, 9,
+		"%M:%M:%M",
+		zero_2_int, time.Hours,
+		zero_2_int, time.Minutes,
+		zero_2_int, time.Seconds
+	);
+}
+
+void
+get_rtc_datetime
 (
 	RTC_HandleTypeDef *rtc,
 	char str_time[25]

@@ -15,14 +15,22 @@ controller_initialize
     {
         .vcon = vcon,
         .vcon_tim = vcon_tim,
-        .rtc = rtc
     };
 
-    lcd_i2c_init(&(controller->lcd), i2c, 0x4E, LCD_20x4, 10);
+    ctrl_lcd_init(&(controller->lcd),   i2c);
+    ctrl_datetime_init(&(controller->datetime), rtc);
 }
 
 void
-controller_update(Controller *controller)
+controller_update(Controller *ctrl)
 {
-
+    ctrl_datetime_update(&(ctrl->datetime));
+    if (ctrl->datetime.new_date)
+    {
+        ctrl_lcd_update_date(&(ctrl->lcd), ctrl->datetime.date);
+    }
+    if (ctrl->datetime.new_time)
+    {
+        ctrl_lcd_update_time(&(ctrl->lcd), ctrl->datetime.time);
+    }
 }

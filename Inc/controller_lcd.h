@@ -8,63 +8,20 @@
 #ifndef __CONTROLLER_LCD_H__
 #define __CONTROLLER_LCD_H__
 
-#include "controller.h"
+#include "lcd_i2c.h"
 
-static const char *k_ChargePointStatus[] = {
-	"",
-	"Available  ",
-	"Connected  ",
-	"Charging   ",
-	"Waiting    ",
-	"Waiting    ",
-	"Finishing  ",
-	"Reserved   ",
-	"Unavailable",
-	"Faulted    "
-};
-
-static const char *k_station_status[] = {
-	"Offline", "Online "
-};
-
+typedef struct
+{
+    LCD_I2C lcd;
+} Ctrl_LCD;
 
 void
-_controller_lcd_init(Controller *ctrl, I2C_HandleTypeDef *i2c)
-{
-	HAL_StatusTypeDef init = lcd_i2c_init(&(ctrl->lcd), i2c, 0x4E, LCD_20x4, 10);
-	#warning NOT OKAY FOR PROD, MADE FOR TESTING
-	if (init != HAL_OK)
-	{ lcd_i2c_init(&(ctrl->lcd), i2c, 0x4E, LCD_20x4, 10); }
-
-	lcd_i2c_pos_printf(&(ctrl->lcd), 0, 0, "Station: ");
-	lcd_i2c_pos_printf(&(ctrl->lcd), 0, 2, "Port 1: ");
-}
+ctrl_lcd_init(Ctrl_LCD *lcd, I2C_HandleTypeDef *i2c);
 
 void
-_controller_lcd_update(Controller *ctrl)
-{
-	static bool online = true;
-	static OCPP_ChargePointStatus port1 = CPS_Unavailable;
-	if (ctrl->debug)
-	{
-		lcd_i2c_pos_printf(&(ctrl->lcd), 0, 3, "%u %u %u %u", ctrl->e_s, ctrl->p_s, ctrl->memory.transaction_id, ctrl->memory.in_transaction);
-	}
-	// static OCPP_ChargePointStatus port2 = CPS_Unavailable;
-
-	if (online != ctrl->ocpp._started)
-	{
-		online = ctrl->ocpp._started;
-		lcd_i2c_pos_printf(&(ctrl->lcd), 0, 0, "Station: %s", k_station_status[online]);
-	}
-
-	if (port1 != ctrl->memory.status)
-	{
-		if (ctrl->rapi._mod_booted)
-		{ port1 = ctrl->memory.status; }
-		lcd_i2c_pos_printf(&(ctrl->lcd), 0, 2, "Port 1: %s", k_ChargePointStatus[port1]);
-	}
-	// lcd_i2c_pos_printf(&(ctrl->lcd), 0, 3, "Port 2: %s", k_ChargePointStatus[port2]);
-}
+ctrl_lcd_update_time(Ctrl_LCD *lcd, RTC_TimeTypeDef time);
+void
+ctrl_lcd_update_date(Ctrl_LCD *lcd, RTC_DateTypeDef date);
 
 
 #endif /* __CONTROLLER_LCD_H__ */

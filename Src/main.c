@@ -123,20 +123,15 @@ int main(void)
 
   uprintf(&OCPP_UART, 100, 20, "HUY\n");
 /*
- * +-------------------+
- * |Wed        06.11.24|
- * |     03:25:48      |
- * |22*        SNOW 12*|
- * |ACOS FLOAT 12.11.24|
- * +-------------------+
+ *                 1111111111
+ *       01234567890123456789
+ *      +--------------------+
+ *     0|Wed         06.11.24|
+ *     1|      03:25:48      |
+ *     2|SNOW -08*        22*|
+ *     3|ACOS FLOAT  12.11.24|
+ *      +--------------------+
  *
- */
-
-
-
-
-  LCD_I2C lcd = {0};
-    HAL_StatusTypeDef init = lcd_i2c_init(&(lcd), &hi2c2, 0x4E, LCD_20x4, 10);
     lcd_i2c_pos_printf(&(lcd), 0, 0, "WED");
     lcd_i2c_pos_printf(&(lcd), 12,0, "06.11.24");
     lcd_i2c_pos_printf(&(lcd), 6,1, "03:25:48");
@@ -144,6 +139,7 @@ int main(void)
     lcd_i2c_pos_printf(&(lcd), 11,2, "SNOW -01*");
     lcd_i2c_pos_printf(&(lcd), 0,3, "ACOS FLOAT 12.11.24");
     
+ */
 
     controller_initialize
     (
