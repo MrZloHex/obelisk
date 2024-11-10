@@ -21,6 +21,30 @@ void
 ctrl_datetime_init(Ctrl_DateTime *dt, RTC_HandleTypeDef *rtc)
 {
     *dt = (Ctrl_DateTime) { .rtc = rtc };
+
+    RTC_DateTypeDef date = 
+    {
+        .Month = 11,
+        .Date  = 10,
+        .Year  = 24
+    };
+    RTC_TimeTypeDef time =
+    {
+        .Hours   = 5,
+        .Minutes = 6,
+        .Seconds = 0
+    };
+    
+    HAL_RTC_SetTime(rtc, &time, RTC_FORMAT_BIN);
+    HAL_RTC_SetDate(rtc, &date, RTC_FORMAT_BIN);
+
+    date = (RTC_DateTypeDef) { 0 };
+    time = (RTC_TimeTypeDef) { 0 };
+    HAL_RTC_GetTime(dt->rtc, &time, RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(dt->rtc, &date, RTC_FORMAT_BIN);
+
+    dt->date = date;
+    dt->time = time;
 }
 
 void

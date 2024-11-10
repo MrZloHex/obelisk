@@ -70,6 +70,23 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+void
+HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == controller.uart.huart->Instance)
+    {
+        ctrl_uart_usart_callback(&controller.uart);
+    }
+}
+
+void
+HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == controller.uart.tim->Instance)
+	{
+        ctrl_uart_timer_callback(&controller.uart);
+	}
+}
 
 #define DEBUG
 /* USER CODE END 0 */
@@ -111,6 +128,7 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_RESET);
 
 #ifdef DEBUG
   uprintf(&OCPP_UART, 100, 20, "DEBUG START\n");
@@ -121,6 +139,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
 
+    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
   uprintf(&OCPP_UART, 100, 20, "HUY\n");
 /*
  *                 1111111111
@@ -141,6 +160,7 @@ int main(void)
     
  */
 
+    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_RESET);
     controller_initialize
     (
         &controller,
@@ -148,6 +168,7 @@ int main(void)
         &htim6,
         &hrtc, &hi2c2
     );
+  HAL_IWDG_Refresh(&hiwdg);
 
   /* USER CODE END 2 */
 
@@ -157,7 +178,8 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	HAL_IWDG_Refresh(&hiwdg);
-	controller_update(&controller);
+    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
+	// controller_update(&controller);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

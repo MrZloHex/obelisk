@@ -13,13 +13,15 @@
 
 #include "controller_datetime.h"
 #include "controller_lcd.h"
+#include "controller_temp.h"
+#include "controller_uart.h"
 
 typedef struct Controller_S
 {
-	UART_HandleTypeDef *vcon;
-	TIM_HandleTypeDef *vcon_tim;
-	Ctrl_LCD  lcd;
+	Ctrl_LCD      lcd;
     Ctrl_DateTime datetime;
+    Ctrl_Temp     temp;
+    Ctrl_UART     uart;
 } Controller;
 
 void

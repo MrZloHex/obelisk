@@ -22,6 +22,8 @@ void
 ctrl_lcd_update_time(Ctrl_LCD *lcd, RTC_TimeTypeDef time);
 void
 ctrl_lcd_update_date(Ctrl_LCD *lcd, RTC_DateTypeDef date);
+void
+ctrl_lcd_update_temp(Ctrl_LCD *lcd, float temp);
 
 
 #endif /* __CONTROLLER_LCD_H__ */
