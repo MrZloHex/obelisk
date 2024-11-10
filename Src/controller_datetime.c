@@ -26,12 +26,13 @@ ctrl_datetime_init(Ctrl_DateTime *dt, RTC_HandleTypeDef *rtc)
     {
         .Month = 11,
         .Date  = 10,
-        .Year  = 24
+        .Year  = 24,
+        .WeekDay = 0
     };
     RTC_TimeTypeDef time =
     {
-        .Hours   = 5,
-        .Minutes = 6,
+        .Hours   = 18,
+        .Minutes = 14,
         .Seconds = 0
     };
     

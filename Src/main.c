@@ -19,12 +19,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
-#include "iwdg.h"
 #include "rtc.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -119,7 +117,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C2_Init();
-  MX_IWDG_Init();
   MX_RTC_Init();
   MX_UART4_Init();
   MX_UART5_Init();
@@ -128,14 +125,13 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BUZZER, GPIO_PIN_SET);
 
 #ifdef DEBUG
   uprintf(&OCPP_UART, 100, 20, "DEBUG START\n");
 	// uprintf(&OCPP_UART, 100, 20, "%u %u\n", rc, sizeof(Controller_Result));
 #endif
 
-  HAL_IWDG_Refresh(&hiwdg);
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
 
@@ -168,7 +164,7 @@ int main(void)
         &htim6,
         &hrtc, &hi2c2
     );
-  HAL_IWDG_Refresh(&hiwdg);
+    HAL_GPIO_WritePin(BUZZER, GPIO_PIN_RESET);
 
   /* USER CODE END 2 */
 
@@ -176,10 +172,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+        HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
+        controller_update(&controller);
     /* USER CODE END WHILE */
-	HAL_IWDG_Refresh(&hiwdg);
-    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
-	// controller_update(&controller);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -198,11 +194,10 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV2;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;

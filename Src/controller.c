@@ -13,10 +13,10 @@ controller_initialize
 {
     ctrl_lcd_init(&(controller->lcd),   i2c);
     ctrl_datetime_init(&(controller->datetime), rtc);
-    // ctrl_temp_init(&(controller->temp), i2c);
-    // ctrl_uart_init(&(controller->uart), vcon, vcon_tim, '\n');
     ctrl_lcd_update_time(&(controller->lcd), controller->datetime.time);
     ctrl_lcd_update_date(&(controller->lcd), controller->datetime.date);
+    ctrl_temp_init(&(controller->temp), i2c);
+    ctrl_uart_init(&(controller->uart), vcon, vcon_tim, '\n');
 }
 
 void
@@ -32,5 +32,6 @@ controller_update(Controller *ctrl)
         ctrl_lcd_update_time(&(ctrl->lcd), ctrl->datetime.time);
     }
 
-    // ctrl_lcd_update_temp(&(ctrl->lcd), ctrl_temp_temp(&(ctrl->temp)));
+    ctrl_lcd_update_temp(&(ctrl->lcd), ctrl_temp_temp(&(ctrl->temp)));
+    ctrl_lcd_update_hum(&(ctrl->lcd), ctrl_temp_hum(&(ctrl->temp)));
 }

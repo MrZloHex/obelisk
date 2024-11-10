@@ -12,3 +12,9 @@ ctrl_temp_temp(Ctrl_Temp *temp)
 {
     return SHT2x_GetTemperature(1);
 }
+
+float
+ctrl_temp_hum(Ctrl_Temp *temp)
+{
+    return SHT2x_GetRelativeHumidity(1);
+}

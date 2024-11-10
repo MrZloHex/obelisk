@@ -78,10 +78,10 @@ get_rtc_date(RTC_DateTypeDef date, char str[9])
 	mjson_snprintf
 	(
 		str, 9,
-		"%M:%M:%M",
+		"%M.%M.%M",
 		zero_2_int, date.Date,
 		zero_2_int, date.Month,
-		date.Year
+		zero_2_int, date.Year
 	);
 }
 
