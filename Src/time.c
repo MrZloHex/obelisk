@@ -21,6 +21,25 @@ zero_2_int
 
 
 void
+calculate_weekday(RTC_DateTypeDef *date)
+{
+    uint8_t month = date->Month;
+    uint16_t year = date->Year + 2000U;
+    uint8_t day   = date->Date;
+
+    if (month < 3) {
+        month += 12;
+        year -= 1;
+    }
+    uint16_t c = year / 100;
+    year = year % 100;
+    int h = (c / 4 - 2 * c + year + year / 4 + 13 * (month + 1) / 5 + day - 1) % 7;
+
+    date->WeekDay = (h + 7) % 7;
+}
+
+
+void
 adjust_rtc_time
 (
 	RTC_HandleTypeDef *rtc,
@@ -29,7 +48,6 @@ adjust_rtc_time
 {
 	RTC_TimeTypeDef time = {0};
 	RTC_DateTypeDef date = {0};
-	date.WeekDay = RTC_WEEKDAY_MONDAY;
 
 	// 2022-10-08T14:50:37.116Z
 	char year_str[3] = {0};
@@ -55,6 +73,8 @@ adjust_rtc_time
 	char seconds_str[3] = {0};
 	strncpy(seconds_str, str_time+17, 2);
 	charset_to_uint8(&time.Seconds, seconds_str);
+
+    calculate_weekday(&date);
 	
 	
 	HAL_RTC_SetTime

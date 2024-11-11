@@ -11,17 +11,21 @@
 #include "lcd_i2c.h"
 #include "stdint.h"
 
+#include "timer.h"
 #include "controller_datetime.h"
 #include "controller_lcd.h"
 #include "controller_temp.h"
-#include "controller_uart.h"
+#include "controller_server.h"
+#include "controller_state.h"
 
 typedef struct Controller_S
 {
 	Ctrl_LCD      lcd;
     Ctrl_DateTime datetime;
     Ctrl_Temp     temp;
-    Ctrl_UART     uart;
+    Timer         temp_tim;
+    Ctrl_Server   server;
+    Ctrl_State    state;
 } Controller;
 
 void

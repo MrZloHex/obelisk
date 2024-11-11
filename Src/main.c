@@ -71,22 +71,26 @@ void SystemClock_Config(void);
 void
 HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if (huart->Instance == controller.uart.huart->Instance)
+    if (huart->Instance == controller.server.uart.huart->Instance)
     {
-        ctrl_uart_usart_callback(&controller.uart);
+        ctrl_uart_usart_callback(&controller.server.uart);
     }
 }
 
 void
 HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if (htim->Instance == controller.uart.tim->Instance)
+	if (htim->Instance == controller.server.uart.tim->Instance)
 	{
-        ctrl_uart_timer_callback(&controller.uart);
+        ctrl_uart_timer_callback(&controller.server.uart);
 	}
 }
 
 #define DEBUG
+
+#define TIMER_IMPL
+#include "timer.h"
+
 /* USER CODE END 0 */
 
 /**
@@ -147,16 +151,10 @@ int main(void)
  *     3|ACOS FLOAT  12.11.24|
  *      +--------------------+
  *
-    lcd_i2c_pos_printf(&(lcd), 0, 0, "WED");
-    lcd_i2c_pos_printf(&(lcd), 12,0, "06.11.24");
-    lcd_i2c_pos_printf(&(lcd), 6,1, "03:25:48");
-    lcd_i2c_pos_printf(&(lcd), 0,2, "22*");
-    lcd_i2c_pos_printf(&(lcd), 11,2, "SNOW -01*");
-    lcd_i2c_pos_printf(&(lcd), 0,3, "ACOS FLOAT 12.11.24");
-    
  */
 
     HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(STATUS_LED, GPIO_PIN_SET);
     controller_initialize
     (
         &controller,
@@ -166,18 +164,25 @@ int main(void)
     );
     HAL_GPIO_WritePin(BUZZER, GPIO_PIN_RESET);
 
+    static Timer led_tim = { 0 };
+    timer_set(&led_tim, 1000, true);
+    timer_start(&led_tim);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-        HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
+    while (1)
+    {
         controller_update(&controller);
+        if (timer_timeout(&led_tim))
+        {
+            HAL_GPIO_TogglePin(STATUS_LED);
+        }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+    }
   /* USER CODE END 3 */
 }
 

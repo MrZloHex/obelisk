@@ -160,6 +160,9 @@ lcd_i2c_set_cursor(LCD_I2C *lcd, uint8_t x, uint8_t y);
 HAL_StatusTypeDef
 lcd_i2c_char(LCD_I2C *lcd, uint8_t chr);
 
+HAL_StatusTypeDef
+lcd_i2c_pos_char(LCD_I2C *lcd, uint8_t x, uint8_t y, uint8_t chr);
+
 /**
  * @brief Print string to set position
  *

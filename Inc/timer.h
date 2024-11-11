@@ -14,6 +14,21 @@ typedef struct Timer_S
 } Timer;
 
 void
+timer_set(Timer *t, uint32_t timeout, bool restart);
+
+void
+timer_start(Timer *t);
+
+bool
+timer_timeout(Timer *t);
+
+void
+timer_stop(Timer *t);
+
+#endif /* __TIMER_H__ */
+#ifdef TIMER_IMPL
+
+void
 timer_set(Timer *t, uint32_t timeout, bool restart)
 {
     t->restart = restart;
@@ -50,4 +65,5 @@ timer_stop(Timer *t)
     t->start = false;
 }
 
-#endif /* __TIMER_H__ */
+#endif
+

@@ -9,6 +9,7 @@
 #define __CONTROLLER_LCD_H__
 
 #include "lcd_i2c.h"
+#include "controller_state.h"
 
 typedef struct
 {
@@ -26,6 +27,8 @@ void
 ctrl_lcd_update_temp(Ctrl_LCD *lcd, float temp);
 void
 ctrl_lcd_update_hum(Ctrl_LCD *lcd, float hum);
+void
+ctrl_lcd_update_state(Ctrl_LCD *lcd, Ctrl_State state);
 
 
 #endif /* __CONTROLLER_LCD_H__ */

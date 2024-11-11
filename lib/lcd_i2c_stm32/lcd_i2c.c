@@ -136,6 +136,13 @@ lcd_i2c_char(LCD_I2C *lcd, uint8_t chr)
 	return _lcd_i2c_data(lcd, chr, I2CLCD_OPTS_DATA);
 }
 
+HAL_StatusTypeDef
+lcd_i2c_pos_char(LCD_I2C *lcd, uint8_t x, uint8_t y, uint8_t chr)
+{
+	lcd_i2c_set_cursor(lcd, x, y);
+	return _lcd_i2c_data(lcd, chr, I2CLCD_OPTS_DATA);
+}
+
 void
 lcd_i2c_printf
 (
