@@ -11,6 +11,7 @@ controller_initialize
 	I2C_HandleTypeDef *i2c
 )
 {
+    controller->state.rtc = rtc;
     ctrl_server_init(&(controller->server), vcon, vcon_tim);
     ctrl_lcd_init(&(controller->lcd),   i2c);
     ctrl_datetime_init(&(controller->datetime), rtc);
@@ -19,8 +20,6 @@ controller_initialize
     ctrl_lcd_update_date(&(controller->lcd), controller->datetime.date);
 
     ctrl_temp_init(&(controller->temp), i2c);
-    timer_set(&(controller->temp_tim), 500, true);
-    timer_start(&(controller->temp_tim));
 }
 
 void
@@ -36,16 +35,13 @@ controller_update(Controller *ctrl)
         ctrl_lcd_update_time(&(ctrl->lcd), ctrl->datetime.time);
     }
     
-
-    if (timer_timeout(&(ctrl->temp_tim)))
-    {
-        ctrl_lcd_update_temp(&(ctrl->lcd), ctrl_temp_temp(&(ctrl->temp)));
-        ctrl_lcd_update_hum(&(ctrl->lcd), ctrl_temp_hum(&(ctrl->temp)));
-    }
-
     ctrl_server_update(&(ctrl->server), ctrl->state);
-    if (ctrl_server_recv(&(ctrl->server), &(ctrl->state)) == CTRL_STATE_UPD)
+    Ctrl_UPD msg;
+    if (ctrl_server_recv(&(ctrl->server), &(ctrl->state), &msg) == CTRL_STATE_UPD)
     {
-       ctrl_lcd_update_state(&(ctrl->lcd), ctrl->state);
+        if (msg == UPD_STATE)
+        { ctrl_lcd_update_state(&(ctrl->lcd), ctrl->state); }
+        if (msg == UPD_WTHR)
+        { ctrl_lcd_update_wthr(&(ctrl->lcd), ctrl->state.weather); }
     }
 }

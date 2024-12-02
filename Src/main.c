@@ -132,15 +132,13 @@ int main(void)
     HAL_GPIO_WritePin(BUZZER, GPIO_PIN_SET);
 
 #ifdef DEBUG
-  uprintf(&OCPP_UART, 100, 20, "DEBUG START\n");
-	// uprintf(&OCPP_UART, 100, 20, "%u %u\n", rc, sizeof(Controller_Result));
+  uprintf(&OCPP_UART, 100, 20, "BOOTING UP\n");
 #endif
 
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
 
     HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
-  uprintf(&OCPP_UART, 100, 20, "HUY\n");
 /*
  *                 1111111111
  *       01234567890123456789

@@ -24,9 +24,11 @@ ctrl_lcd_update_time(Ctrl_LCD *lcd, RTC_TimeTypeDef time);
 void
 ctrl_lcd_update_date(Ctrl_LCD *lcd, RTC_DateTypeDef date);
 void
-ctrl_lcd_update_temp(Ctrl_LCD *lcd, float temp);
+ctrl_lcd_update_temp(Ctrl_LCD *lcd, int temp, int feels);
 void
-ctrl_lcd_update_hum(Ctrl_LCD *lcd, float hum);
+ctrl_lcd_update_hum(Ctrl_LCD *lcd, int hum);
+void
+ctrl_lcd_update_wthr(Ctrl_LCD *lcd, Weather wthr);
 void
 ctrl_lcd_update_state(Ctrl_LCD *lcd, Ctrl_State state);
 
