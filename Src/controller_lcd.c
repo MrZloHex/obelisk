@@ -73,10 +73,32 @@ ctrl_lcd_update_temp(Ctrl_LCD *lcd, int temp, int feels)
 
 }
 
+#include "mjson.h"
+
+static int
+space3i
+(
+	mjson_print_fn_t fn,
+	void *fndata,
+	va_list *ap
+)
+{
+	int value = va_arg(*ap, int);
+	if (value < 10)
+		return mjson_printf(fn, fndata, "  %u", value);
+	else if (value < 100)
+		return mjson_printf(fn, fndata, " %u", value);
+    else 
+		return mjson_printf(fn, fndata, "%u", value);
+}
+
 void
 ctrl_lcd_update_hum(Ctrl_LCD *lcd, int hum)
 {
-    lcd_i2c_pos_printf(&(lcd->lcd), 17, 2, "%d%%", hum);
+    char buffer[4] = { 0 };
+    mjson_snprintf(buffer, sizeof(buffer), "%M", space3i, hum);
+    lcd_i2c_pos_printf(&(lcd->lcd), 16, 2, "%s", buffer);
+    lcd_i2c_pos_printf(&(lcd->lcd), 19, 2, "%%");
 }
 
 static int
