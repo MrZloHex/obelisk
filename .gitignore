@@ -1,6 +1,6 @@
-.pio
-.dist
-.vscode
-
-vcon_upload.ini
-stm32pio.ini
+.cache/
+compile_commands.json
+obj/
+bin/
+*.swp
+.mxproject

@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -18,14 +18,19 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "crc.h"
 #include "i2c.h"
-#include "iwdg.h"
 #include "rtc.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include <string.h>
+#include "controller.h"
+#include "serial.h"
 
 /* USER CODE END Includes */
 
@@ -47,6 +52,30 @@
 
 /* USER CODE BEGIN PV */
 
+#define RAPI_UART huart4
+#define OCPP_UART huart1
+
+static Controller controller = {0};
+
+
+void
+HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == controller.server.uart.huart->Instance)
+    {
+        ctrl_uart_usart_callback(&controller.server.uart);
+    }
+}
+
+void
+HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == controller.server.uart.tim->Instance)
+	{
+        ctrl_uart_timer_callback(&controller.server.uart);
+	}
+}
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,6 +86,12 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+#define DEBUG
+
+#define TIMER_IMPL
+#include "timer.h"
+
 
 /* USER CODE END 0 */
 
@@ -89,25 +124,69 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C2_Init();
-  MX_IWDG_Init();
   MX_RTC_Init();
   MX_UART4_Init();
   MX_UART5_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
+  MX_TIM6_Init();
+  MX_TIM7_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
+
+      HAL_GPIO_WritePin(BUZZER, GPIO_PIN_SET);
+
+#ifdef DEBUG
+  uprintf(&OCPP_UART, 100, 20, "BOOTING UP\n");
+#endif
+
+  HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start_IT(&htim7);
+
+    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
+/*
+ *                 1111111111
+ *       01234567890123456789
+ *      +--------------------+
+ *     0|Wed         06.11.24|
+ *     1|      03:25:48      |
+ *     2|SNOW -08*        22*|
+ *     3|ACOS FLOAT  12.11.24|
+ *      +--------------------+
+ *
+ */
+
+    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(STATUS_LED, GPIO_PIN_SET);
+    controller_initialize
+    (
+        &controller,
+        &OCPP_UART,
+        &htim6,
+        &hrtc, &hi2c2
+    );
+    HAL_GPIO_WritePin(BUZZER, GPIO_PIN_RESET);
+
+    static Timer led_tim = { 0 };
+    timer_set(&led_tim, 1000, true);
+    timer_start(&led_tim);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+    while (1)
+    {
+        controller_update(&controller);
+        if (timer_timeout(&led_tim))
+        {
+            HAL_GPIO_TogglePin(STATUS_LED);
+        }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
-  /* USER CODE END 3 */
+    }
+      /* USER CODE END 3 */
 }
 
 /**
@@ -123,11 +202,10 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV2;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
@@ -159,6 +237,16 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void
+Error_Handler_with_err(const char * err)
+{
+  #ifndef NODEBUG
+  uprintf(&OCPP_UART, 1000, 256, "ERROR: %s\n", err);
+  #endif
+  Error_Handler();
+}
+
+
 /* USER CODE END 4 */
 
 /**
@@ -169,6 +257,9 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+    HAL_GPIO_WritePin(ERROR_LED, GPIO_PIN_SET);
+	// rapi_deinit(&rapi);
+	// ocpp_deinit(&ocpp);
   __disable_irq();
   while (1)
   {

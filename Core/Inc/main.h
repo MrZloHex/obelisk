@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -46,6 +46,12 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+
+#define RFID_IRQ   GPIOB, GPIO_PIN_0
+#define FRAM_WP    GPIOB, GPIO_PIN_1
+#define BUZZER     GPIOB, GPIO_PIN_2
+#define STATUS_LED GPIOB, GPIO_PIN_3
+#define ERROR_LED  GPIOB, GPIO_PIN_4
 
 /* USER CODE END EM */
 
